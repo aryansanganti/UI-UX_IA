@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microinteractions Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Material Symbols for Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <h1>Microinteractions: Notification Bell & Toast Queue</h1>
+
+  <!-- ========== A: Notification Bell ========== -->
+  <div class="notification-wrapper">
+    <button id="notif-bell" class="notification-bell">
+      <span class="material-symbols-outlined">notifications</span>
+      <span id="notif-count" class="badge">0</span>
+    </button>
+
+    <div id="notif-dropdown" class="notification-dropdown">
+      <p class="notif-header">Notifications</p>
+      <ul id="notif-list">
+        <!-- Notifications will be injected here -->
+      </ul>
+      <button id="mark-read" class="mark-read-btn">Mark all as read</button>
+    </div>
+  </div>
+
+  <button id="add-notif" class="action-btn">Add New Notification</button>
+
+  <!-- ========== B: Toast Notification Queue ========== -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <button id="show-toast" class="action-btn">Show Toast</button>
+
+  <script>
+    /* ==================== A: Notification Bell ==================== */
+    const notifBell = document.getElementById("notif-bell");
+    const notifDropdown = document.getElementById("notif-dropdown");
+    const notifCount = document.getElementById("notif-count");
+    const notifList = document.getElementById("notif-list");
+    const markReadBtn = document.getElementById("mark-read");
+    const addNotifBtn = document.getElementById("add-notif");
+
+    let notifications = [];
+    let unreadCount = 0;
+
+    function updateBadge() {
+      notifCount.textContent = unreadCount;
+      notifCount.style.display = unreadCount > 0 ? "inline-block" : "none";
+    }
+
+    function addNotification(message) {
+      notifications.unshift(message);
+      unreadCount++;
+      updateBadge();
+      notifBell.classList.add("shake");
+      setTimeout(() => notifBell.classList.remove("shake"), 600);
+
+      const li = document.createElement("li");
+      li.textContent = message;
+      notifList.prepend(li);
+    }
+
+    notifBell.addEventListener("click", () => {
+      notifDropdown.classList.toggle("open");
+    });
+
+    markReadBtn.addEventListener("click", () => {
+      unreadCount = 0;
+      updateBadge();
+    });
+
+    addNotifBtn.addEventListener("click", () => {
+      addNotification(`New message at ${new Date().toLocaleTimeString()}`);
+    });
+
+    /* ==================== B: Toast Notifications ==================== */
+    const toastContainer = document.getElementById("toast-container");
+    const showToastBtn = document.getElementById("show-toast");
+
+    function createToast(message, duration = 3000) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.setAttribute("role", "status");
+      toast.textContent = message;
+
+      let dismissTimeout = setTimeout(() => removeToast(toast), duration);
+
+      toast.addEventListener("mouseenter", () => clearTimeout(dismissTimeout));
+      toast.addEventListener("mouseleave", () => {
+        dismissTimeout = setTimeout(() => removeToast(toast), duration);
+      });
+
+      toastContainer.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add("show"));
+    }
+
+    function removeToast(toast) {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }
+
+    showToastBtn.addEventListener("click", () => {
+      createToast(`Toast at ${new Date().toLocaleTimeString()}`);
+    });
+  </script>
+</body>
+</html>
