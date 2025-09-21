@@ -70,6 +70,8 @@
     markReadBtn.addEventListener("click", () => {
       unreadCount = 0;
       updateBadge();
+      notifications = [];
+      notifList.innerHTML = "";
     });
 
     addNotifBtn.addEventListener("click", () => {
