@@ -55,15 +55,38 @@
     }
 
     function addNotification(message) {
-      notifications.unshift(message);
+      const notificationId = Date.now(); // Unique ID for each notification
+      notifications.unshift({ id: notificationId, message });
       unreadCount++;
       updateBadge();
       notifBell.classList.add("shake");
       setTimeout(() => notifBell.classList.remove("shake"), 600);
 
       const li = document.createElement("li");
-      li.textContent = message;
+      li.className = "notification-item";
+      li.innerHTML = `
+        <span class="notification-text">${message}</span>
+        <button class="notification-close" onclick="removeNotification(${notificationId})">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      `;
       notifList.prepend(li);
+    }
+
+    function removeNotification(id) {
+      // Remove from array
+      notifications = notifications.filter(notif => notif.id !== id);
+      
+      // Find and remove the DOM element
+      const notifItems = document.querySelectorAll('.notification-item');
+      notifItems.forEach(item => {
+        const closeBtn = item.querySelector('.notification-close');
+        if (closeBtn && closeBtn.onclick.toString().includes(id)) {
+          item.remove();
+          unreadCount--;
+          updateBadge();
+        }
+      });
     }
 
     notifBell.addEventListener("click", () => {
